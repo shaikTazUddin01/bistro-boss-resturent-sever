@@ -21,9 +21,25 @@ const client = new MongoClient(uri, {
 });
 const DataBase=client.db('BistroBoss_restaurent')
 const menuCollection=DataBase.collection('menu')
+const reviewCollection=DataBase.collection('review')
+const AddToCart=DataBase.collection('AddToCart')
 
+// add to cart collection
+app.post('/addtocart',async(req,res)=>{
+  const data=req.body;
+  const result=await AddToCart.insertOne(data)
+
+  res.send(result);
+})
+
+// menu collection
 app.get('/menu',async(req,res)=>{
     const result=await menuCollection.find().toArray()
+    res.send(result)
+})
+// review collection
+app.get('/review',async(req,res)=>{
+    const result=await reviewCollection.find().toArray()
     res.send(result)
 })
 
