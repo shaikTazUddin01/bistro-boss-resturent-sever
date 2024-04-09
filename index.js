@@ -1,12 +1,13 @@
-const express=require('express')
-const cors=require('cors')
+const express = require('express')
+const cors = require('cors')
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config()
 // -------port----------
-const port=process.env.PORT || 5000
-const app=express()
+const port = process.env.PORT || 5000
+const app = express()
 // ------middleware--------
 app.use(cors())
+app.use(express.json())
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.25fgudl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -19,28 +20,30 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-const DataBase=client.db('BistroBoss_restaurent')
-const menuCollection=DataBase.collection('menu')
-const reviewCollection=DataBase.collection('review')
-const AddToCart=DataBase.collection('AddToCart')
+const DataBase = client.db('BistroBoss_restaurent')
+const menuCollection = DataBase.collection('menu')
+const reviewCollection = DataBase.collection('review')
+const AddToCart = DataBase.collection('AddToCart')
 
 // add to cart collection
-app.post('/addtocart',async(req,res)=>{
-  const data=req.body;
-  const result=await AddToCart.insertOne(data)
-
+app.post('/addtocart', async (req, res) => {
+  const data = req.body;
+  // console.log('hello')
+  // console.log(data)
+  const result = await AddToCart.insertOne(data)
   res.send(result);
+  console.log(result)
 })
 
 // menu collection
-app.get('/menu',async(req,res)=>{
-    const result=await menuCollection.find().toArray()
-    res.send(result)
+app.get('/menu', async (req, res) => {
+  const result = await menuCollection.find().toArray()
+  res.send(result)
 })
 // review collection
-app.get('/review',async(req,res)=>{
-    const result=await reviewCollection.find().toArray()
-    res.send(result)
+app.get('/review', async (req, res) => {
+  const result = await reviewCollection.find().toArray()
+  res.send(result)
 })
 
 
@@ -60,11 +63,11 @@ run().catch(console.dir);
 
 
 //---------start server--------
-app.get('/',(req,res)=>{
-    res.send("bistro boss server is connecting");
+app.get('/', (req, res) => {
+  res.send("bistro boss server is connecting");
 })
 
 //----------connecting port--------
-app.listen(port,()=>{
-    console.log("connecting port is: ",port)
+app.listen(port, () => {
+  console.log("connecting port is: ", port)
 })
