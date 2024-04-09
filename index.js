@@ -26,13 +26,15 @@ const reviewCollection = DataBase.collection('review')
 const AddToCart = DataBase.collection('AddToCart')
 
 // add to cart collection
+app.get('/addtocart', async (req, res) => {
+  
+  const result = await AddToCart.find().toArray()
+  res.send(result);
+})
 app.post('/addtocart', async (req, res) => {
   const data = req.body;
-  // console.log('hello')
-  // console.log(data)
   const result = await AddToCart.insertOne(data)
   res.send(result);
-  console.log(result)
 })
 
 // menu collection
