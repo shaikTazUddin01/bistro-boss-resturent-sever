@@ -24,7 +24,14 @@ const DataBase = client.db('BistroBoss_restaurent')
 const menuCollection = DataBase.collection('menu')
 const reviewCollection = DataBase.collection('review')
 const AddToCart = DataBase.collection('AddToCart')
+const userCollection= DataBase.collection('user')
 
+//user api and oparation
+app.post('/user',async(req,res)=>{
+  const userData=req.body;
+  const result=await userCollection.insertOne(userData)
+  res.send(result)
+})
 // add to cart collection
 app.delete('/addtocart/:id',async(req,res)=>{
   const id=req.params.id;
