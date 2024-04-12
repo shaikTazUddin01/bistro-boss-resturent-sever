@@ -27,6 +27,10 @@ const AddToCart = DataBase.collection('AddToCart')
 const userCollection= DataBase.collection('user')
 
 //user api and oparation
+app.get('/user',async(req,res)=>{
+  const result=await userCollection.find().toArray()
+  res.send(result)
+})
 app.post('/user',async(req,res)=>{
   const userData=req.body;
   const result=await userCollection.insertOne(userData)
