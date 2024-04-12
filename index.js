@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
 require('dotenv').config()
 // -------port----------
 const port = process.env.PORT || 5000
@@ -26,6 +26,13 @@ const reviewCollection = DataBase.collection('review')
 const AddToCart = DataBase.collection('AddToCart')
 
 // add to cart collection
+app.delete('/addtocart/:id',async(req,res)=>{
+  const id=req.params.id;
+  console.log(id)
+  const query={_id: new ObjectId(id)}
+  const result= await AddToCart.deleteOne(query)
+  res.send(result)
+})
 app.get('/addtocart', async (req, res) => {
   const email=req.query.email;
   console.log(email)
