@@ -27,8 +27,10 @@ const AddToCart = DataBase.collection('AddToCart')
 
 // add to cart collection
 app.get('/addtocart', async (req, res) => {
-  
-  const result = await AddToCart.find().toArray()
+  const email=req.query.email;
+  console.log(email)
+  const filter={user:email}
+  const result = await AddToCart.find(filter).toArray()
   res.send(result);
 })
 app.post('/addtocart', async (req, res) => {
