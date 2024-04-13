@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 // -------port----------
 const port = process.env.PORT || 5000
@@ -24,30 +24,44 @@ const DataBase = client.db('BistroBoss_restaurent')
 const menuCollection = DataBase.collection('menu')
 const reviewCollection = DataBase.collection('review')
 const AddToCart = DataBase.collection('AddToCart')
-const userCollection= DataBase.collection('user')
+const userCollection = DataBase.collection('user')
 
 //user api and oparation
-app.get('/user',async(req,res)=>{
-  const result=await userCollection.find().toArray()
+app.delete('/user/:id',async(req,res)=>{
+  const id=req.params.id
+  const query={_id : new ObjectId(id)}
+  const result=await userCollection.deleteOne(query)
+
+  res.send(result)
+  console.log(result)
+})
+app.get('/user', async (req, res) => {
+  const result = await userCollection.find().toArray()
   res.send(result)
 })
-app.post('/user',async(req,res)=>{
-  const userData=req.body;
-  const result=await userCollection.insertOne(userData)
+app.post('/user', async (req, res) => {
+  const userData = req.body;
+  const userEmail=req.query.email
+  const query={email:userEmail}
+  const isExist=await userCollection.findOne(query)
+  if (isExist) {
+    return res.send('already user is exist')
+  }
+  const result = await userCollection.insertOne(userData)
   res.send(result)
 })
 // add to cart collection
-app.delete('/addtocart/:id',async(req,res)=>{
-  const id=req.params.id;
-  console.log(id)
-  const query={_id: new ObjectId(id)}
-  const result= await AddToCart.deleteOne(query)
+app.delete('/addtocart/:id', async (req, res) => {
+  const id = req.params.id;
+  // console.log(id)
+  const query = { _id: new ObjectId(id) }
+  const result = await AddToCart.deleteOne(query)
   res.send(result)
 })
 app.get('/addtocart', async (req, res) => {
-  const email=req.query.email;
-  console.log(email)
-  const filter={user:email}
+  const email = req.query.email;
+  // console.log(email)
+  const filter = { user: email }
   const result = await AddToCart.find(filter).toArray()
   res.send(result);
 })
