@@ -27,6 +27,16 @@ const AddToCart = DataBase.collection('AddToCart')
 const userCollection = DataBase.collection('user')
 
 //user api and oparation
+app.patch('/user/admin/:id',async(req,res)=>{
+  const id=req.params.id
+  const filter={_id:new ObjectId(id)}
+
+  const updateDoc={
+    role:'admin'
+  }
+  const result=await userCollection.updateOne(filter,updateDoc)
+  res.send(result)
+})
 app.delete('/user/:id',async(req,res)=>{
   const id=req.params.id
   const query={_id : new ObjectId(id)}
