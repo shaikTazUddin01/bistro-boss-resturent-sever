@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 // -------port----------
@@ -26,13 +27,26 @@ const reviewCollection = DataBase.collection('review')
 const AddToCart = DataBase.collection('AddToCart')
 const userCollection = DataBase.collection('user')
 
+//jwt related api
+app.post('/jwt',async(req,res)=>{
+  const user=req.body;
+  const token=jwt.sign(user,process.env.JWT_SECRET_TOKEN, {
+     expiresIn: '24h' })
+     res.send({token})
+})
+
+
 //user api and oparation
 app.patch('/user/admin/:id',async(req,res)=>{
   const id=req.params.id
   const filter={_id:new ObjectId(id)}
+  console.log(filter)
+
 
   const updateDoc={
-    role:'admin'
+    $set:{
+      role:'admin'
+    }
   }
   const result=await userCollection.updateOne(filter,updateDoc)
   res.send(result)
