@@ -23,10 +23,11 @@ const varifyToken = (req, res, next) => {
 
     }
     req.decoded = decoded
+
     next()
   })
   // inodem
- 
+
 }
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.25fgudl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -55,6 +56,21 @@ app.post('/jwt', async (req, res) => {
 
 
 //user api and oparation
+app.get('/user/admin/:email', varifyToken, async (req, res) => {
+  const email = req.params.email;
+  console.log(req.decoded)
+  console.log(email)
+  if (email !== req.decoded.email) {
+    return res.status(4030).send({ message: 'unauthorized access' })
+  }
+  const query = { email: email };
+  const user = await userCollection.findOne(query)
+  let admin = false;
+  if (user) {
+    admin = user?.role === "admin"
+  }
+  res.send({ admin });
+})
 app.patch('/user/admin/:id', async (req, res) => {
   const id = req.params.id
   const filter = { _id: new ObjectId(id) }
@@ -79,7 +95,7 @@ app.delete('/user/:id', async (req, res) => {
 })
 
 app.get('/user', varifyToken, async (req, res) => {
-  const token = req.headers
+  const token = req.headers.authorization
   console.log(token)
   const result = await userCollection.find().toArray()
   res.send(result)
