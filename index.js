@@ -10,7 +10,24 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+//middlere varify token 
+const varifyToken = (req, res, next) => {
 
+  if (!req.headers?.authorization) {
+    return res.status(401).send({ messages: 'forbiden access' })
+  }
+  const token = req.headers.authorization.split(' ')[1]
+  jwt.verify(token, process.env.JWT_SECRET_TOKEN, function (err, decoded) {
+    if (err) {
+      return res.status(401).send({ messages: 'forbiden access' })
+
+    }
+    req.decoded = decoded
+    next()
+  })
+  // inodem
+ 
+}
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.25fgudl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // ------Create a MongoClient with a MongoClientOptions object to set the Stable API version-------
@@ -28,46 +45,50 @@ const AddToCart = DataBase.collection('AddToCart')
 const userCollection = DataBase.collection('user')
 
 //jwt related api
-app.post('/jwt',async(req,res)=>{
-  const user=req.body;
-  const token=jwt.sign(user,process.env.JWT_SECRET_TOKEN, {
-     expiresIn: '24h' })
-     res.send({token})
+app.post('/jwt', async (req, res) => {
+  const user = req.body;
+  const token = jwt.sign(user, process.env.JWT_SECRET_TOKEN, {
+    expiresIn: '24h'
+  })
+  res.send({ token })
 })
 
 
 //user api and oparation
-app.patch('/user/admin/:id',async(req,res)=>{
-  const id=req.params.id
-  const filter={_id:new ObjectId(id)}
+app.patch('/user/admin/:id', async (req, res) => {
+  const id = req.params.id
+  const filter = { _id: new ObjectId(id) }
   console.log(filter)
 
 
-  const updateDoc={
-    $set:{
-      role:'admin'
+  const updateDoc = {
+    $set: {
+      role: 'admin'
     }
   }
-  const result=await userCollection.updateOne(filter,updateDoc)
+  const result = await userCollection.updateOne(filter, updateDoc)
   res.send(result)
 })
-app.delete('/user/:id',async(req,res)=>{
-  const id=req.params.id
-  const query={_id : new ObjectId(id)}
-  const result=await userCollection.deleteOne(query)
+app.delete('/user/:id', async (req, res) => {
+  const id = req.params.id
+  const query = { _id: new ObjectId(id) }
+  const result = await userCollection.deleteOne(query)
 
   res.send(result)
   console.log(result)
 })
-app.get('/user', async (req, res) => {
+
+app.get('/user', varifyToken, async (req, res) => {
+  const token = req.headers
+  console.log(token)
   const result = await userCollection.find().toArray()
   res.send(result)
 })
 app.post('/user', async (req, res) => {
   const userData = req.body;
-  const userEmail=req.query.email
-  const query={email:userEmail}
-  const isExist=await userCollection.findOne(query)
+  const userEmail = req.query.email
+  const query = { email: userEmail }
+  const isExist = await userCollection.findOne(query)
   if (isExist) {
     return res.send('already user is exist')
   }
