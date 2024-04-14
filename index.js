@@ -12,7 +12,6 @@ app.use(express.json())
 
 //middlere varify token 
 const varifyToken = (req, res, next) => {
-
   if (!req.headers?.authorization) {
     return res.status(401).send({ messages: 'forbiden access' })
   }
@@ -26,9 +25,22 @@ const varifyToken = (req, res, next) => {
 
     next()
   })
-  // inodem
+  // inodem 
 
 }
+//verify admin
+const verifyAdmin = async (req, res, next) => {
+  const email = req.decoded.email;
+  const query = { email: email }
+  const user = await userCollection.findOne(query)
+  const isAdmin = user?.role === 'admin';
+  if (!isAdmin) {
+    return res.status(401).send({ messages: 'forbiden access' })
+
+  }
+  next()
+}
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.25fgudl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // ------Create a MongoClient with a MongoClientOptions object to set the Stable API version-------
@@ -94,9 +106,9 @@ app.delete('/user/:id', async (req, res) => {
   console.log(result)
 })
 
-app.get('/user', varifyToken, async (req, res) => {
-  const token = req.headers.authorization
-  console.log(token)
+app.get('/user', varifyToken,verifyAdmin, async (req, res) => {
+  // const token = req.headers.authorization
+  // console.log(token)
   const result = await userCollection.find().toArray()
   res.send(result)
 })
